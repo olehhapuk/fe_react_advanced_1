@@ -1,0 +1,27 @@
+{
+  "name": "fe_react_advanced_1",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "dev": "nodemon index.js",
+    "start": "node index.js"
+  },
+  "dependencies": {
+    "commander": "^7.2.0"
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.7"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/olehhapuk/fe_react_advanced_1.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/olehhapuk/fe_react_advanced_1/issues"
+  },
+  "homepage": "https://github.com/olehhapuk/fe_react_advanced_1#readme",
+  "keywords": [],
+  "description": ""
+}

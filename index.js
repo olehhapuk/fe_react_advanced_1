@@ -1,27 +1,45 @@
-// import data from './hello.js';
-// const data = require('./hello.js');
+const { Command } = require('commander');
+const {
+  listContacts,
+  getContactById,
+  removeContact,
+  addContact,
+} = require('./contacts.js');
 
-const fs = require('fs').promises;
+const program = new Command();
 
-// fs.readFile('hello.txt').then((data) => {
-//   console.log(data.toString());
-// });
+program
+  .option('-a, --action <type>', 'choose action')
+  .option('-i, --id <type>', 'user id')
+  .option('-n, --name <type>', 'user name')
+  .option('-e, --email <type>', 'user email')
+  .option('-p, --phone <type>', 'user phone');
 
-// fs.readFile('data.json').then((data) => {
-//   console.log(JSON.parse(data));
-// });
+program.parse(process.argv);
 
-fs.readdir(__dirname)
-  .then((files) => {
-    return Promise.all(
-      files.map(async (filename) => {
-        const stats = await fs.stat(filename);
-        return {
-          name: filename,
-          size: stats.size,
-          date: stats.mtime,
-        };
-      })
-    );
-  })
-  .then((result) => console.table(result));
+const argv = program.opts();
+
+function invokeAction({ action, id, name, email, phone }) {
+  switch (action) {
+    case 'list':
+      listContacts();
+      break;
+
+    case 'get':
+      getContactById(Number(id));
+      break;
+
+    case 'add':
+      addContact(name, email, phone);
+      break;
+
+    case 'remove':
+      removeContact(Number(id));
+      break;
+
+    default:
+      console.warn('\x1B[31m Unknown action type!');
+  }
+}
+
+invokeAction(argv);
