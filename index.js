@@ -1,33 +1,26 @@
-const { program } = require('commander');
+const express = require('express');
+// const path = require('path');
 
-const { listUsers, getUser, createUser, deleteUser } = require('./users');
+const app = express();
 
-program
-  .option('-a, --action <type>', 'Choose action')
-  .option('-i, --id <type>', 'User id')
-  .option('-u, --username <type>', 'Username')
-  .option('-p, --password <type>', 'Password');
-program.parse(process.argv);
+app.set('views', './views');
+app.set('view engine', 'ejs');
 
-const argv = program.opts();
+// app.use(express.static(path.join(__dirname + '/public')));
 
-switch (argv.action) {
-  case 'list':
-    listUsers();
-    break;
+/*
+  Basic HTML response
+  req: request
+  res: response
+*/
+// app.get('/about', (req, res) => {
+//   res.sendFile(path.join(__dirname + '/public/about.html'));
+// });
 
-  case 'get':
-    getUser(Number(argv.id));
-    break;
+app.get('/', (req, res) => {
+  res.render('index', { title: ';samd;almd;amd' });
+});
 
-  case 'create':
-    createUser(argv.username, argv.password);
-    break;
-
-  case 'delete':
-    deleteUser(Number(argv.id));
-    break;
-
-  default:
-    break;
-}
+app.listen(5000, () => {
+  console.log('Server is running at port 5000');
+});
