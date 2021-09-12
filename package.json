@@ -19,6 +19,7 @@
   },
   "homepage": "https://github.com/olehhapuk/fe_react_advanced_1#readme",
   "dependencies": {
+    "dotenv": "^10.0.0",
     "ejs": "^3.1.6",
     "express": "^4.17.1",
     "volleyball": "^1.5.1"
