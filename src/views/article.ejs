@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <%- include('../components/head', { title: 'Articles List' }); %>
+  </head>
+  <body>
+    <div class="container">
+      <div class="row">
+        <div class="col">
+          <h1><%= article.title %></h1>
+          <p><%= article.text %></p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Scripts -->
+    <%- include('../components/scripts'); %>
+  </body>
+</html>
