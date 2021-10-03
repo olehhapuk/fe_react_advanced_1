@@ -1,13 +1,11 @@
 const express = require('express');
-const path = require('path');
-const fs = require('fs').promises;
-const { nanoid } = require('nanoid');
 const yup = require('yup');
 
 const schemaValidate = require('../middlewares/schemaValidate');
+const { User, Post } = require('../schemas');
+// import { User, Post } from '../schemas/index.js';
 
 const router = express.Router();
-const usersDbPath = path.resolve(__dirname, '../../db/users.json');
 
 /*
   User {
@@ -49,83 +47,68 @@ const updateUserSchema = yup.object().shape({
   Delete user by id: DELETE /:userId
 */
 
-// Create new user
-router.post('/', schemaValidate(createUserSchema), async (req, res) => {
-  try {
-    let users = await fs.readFile(usersDbPath);
-    users = JSON.parse(users);
-
-    const newUser = {
-      ...req.body,
-      id: nanoid(),
-    };
-    users.push(newUser);
-
-    await fs.writeFile(usersDbPath, JSON.stringify(users));
-    // const newUsers = await fs.readFile(usersDbPath);
-
-    res.json(newUser);
-  } catch (error) {
-    res.status(500).send(error);
-  }
-});
-
-// Update user data
-router.put('/:userId', schemaValidate(updateUserSchema), async (req, res) => {
-  try {
-    let users = await fs.readFile(usersDbPath);
-    users = JSON.parse(users);
-    users = users.map((user) =>
-      user.id === req.params.userId ? { ...user, ...req.body } : user
-    );
-    await fs.writeFile(usersDbPath, JSON.stringify(users));
-
-    const newUsers = await fs.readFile(usersDbPath);
-    const targetUser = JSON.parse(newUsers).find(
-      ({ id }) => id === req.params.userId
-    );
-    res.json(targetUser);
-  } catch (error) {
-    res.status(500).send(error);
-  }
-});
-
 router.get('/', async (req, res) => {
   try {
-    let users = await fs.readFile(usersDbPath);
-    users = JSON.parse(users);
+    const users = await User.find();
     res.json(users);
   } catch (error) {
+    console.log(error);
     res.status(500).send(error);
   }
 });
 
+router.post('/', async (req, res) => {
+  try {
+    // const newUser = new User(req.body);
+    // await newUser.save();
+
+    const newUser = await User.create(req.body);
+    res.json(newUser);
+  } catch (error) {
+    console.log(error);
+    res.status(500).send(error);
+  }
+});
+
+// /api/users/:userId
 router.get('/:userId', async (req, res) => {
   try {
-    let users = await fs.readFile(usersDbPath);
-    users = JSON.parse(users);
-
-    const targetUser = users.find((user) => user.id === req.params.userId);
+    const targetUser = await User.findById(req.params.userId);
     if (!targetUser) {
-      res.status(404).json({ message: 'Not found!' });
+      res.status(404).json({ message: 'User not found' });
       return;
     }
 
     res.json(targetUser);
   } catch (error) {
+    console.log(error);
+    res.status(500).send(error);
+  }
+});
+
+router.put('/:userId', async (req, res) => {
+  try {
+    // User.findOneAndUpdate({ username: 'dev' }, req.body)
+    const updatedUser = await User.findByIdAndUpdate(
+      req.params.userId,
+      req.body,
+      {
+        new: true,
+      }
+    );
+    res.json(updatedUser);
+  } catch (error) {
+    console.log(error);
     res.status(500).send(error);
   }
 });
 
 router.delete('/:userId', async (req, res) => {
   try {
-    let users = await fs.readFile(usersDbPath);
-    users = JSON.parse(users);
-    users = users.filter((user) => user.id !== req.params.userId);
-    await fs.writeFile(usersDbPath, JSON.stringify(users));
-
-    res.json(users);
+    await User.findByIdAndDelete(req.params.userId);
+    res.json({ message: `User with id ${req.params.userId} deleted` });
   } catch (error) {
+    console.log(error);
     res.status(500).send(error);
   }
 });

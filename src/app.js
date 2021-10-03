@@ -3,10 +3,16 @@ const volleyball = require('volleyball');
 const path = require('path');
 require('dotenv').config();
 const cors = require('cors');
+const mongoose = require('mongoose');
 
 const users = require('./routes/users');
 
 const app = express();
+
+mongoose
+  .connect(process.env.MONGODB_CONNECTION)
+  .then(() => console.log('Connected to database'))
+  .catch((error) => console.log(error));
 
 app.use(
   cors({
