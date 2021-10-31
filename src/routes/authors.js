@@ -24,4 +24,14 @@ router.post('/', async (req, res) => {
   }
 });
 
+router.get('/:authorId', async (req, res) => {
+  try {
+    const author = await Author.findById(req.params.authorId).populate('books');
+    res.json(author);
+  } catch (error) {
+    console.log(error);
+    res.status(500).send(error);
+  }
+});
+
 module.exports = router;

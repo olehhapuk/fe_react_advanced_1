@@ -1,6 +1,6 @@
 const express = require('express');
 
-const { Book } = require('../models');
+const { Book, Author } = require('../models');
 
 const router = express.Router();
 
@@ -17,6 +17,11 @@ router.get('/', async (req, res) => {
 router.post('/', async (req, res) => {
   try {
     const newBook = await Book.create(req.body);
+    await Author.findByIdAndUpdate(req.body.author, {
+      $push: {
+        books: newBook._id,
+      },
+    });
     res.json(newBook);
   } catch (error) {
     console.log(error);
@@ -39,6 +44,17 @@ router.get('/:bookId', async (req, res) => {
 router.delete('/:bookId', async (req, res) => {
   try {
     await Book.findByIdAndDelete(req.params.bookId);
+    await Author.updateMany(
+      {
+        books: req.params.bookId,
+        // title: 'The book'
+      },
+      {
+        $pull: {
+          books: req.params.bookId,
+        },
+      }
+    );
     res.json({
       message: 'Book was deleted',
     });
