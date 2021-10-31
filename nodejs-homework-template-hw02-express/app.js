@@ -8,7 +8,7 @@ const contactsRouter = require('./routes/api/contacts');
 const app = express();
 
 const mongo_uri =
-  'mongodb+srv://oleh:react-advanced-1@cluster0.2gm8e.mongodb.net/contacts?retryWrites=true&w=majority';
+  '***';
 mongoose
   .connect(mongo_uri)
   .then(() => console.log('Database connection successful'))
