@@ -1,15 +1,8 @@
-Book:
+# Express Mongoose Template
 
-- Get all
-- Get one by id
-- Update book info
-- Create new book
-- Delete existing book
+## Getting started
 
-Author:
-
-- Get all
-- Get one by id
-- Update author info
-- Create new author
-- Delete existing author
+- Create copy of .env.example and rename it to .env
+- Provide required data
+- Install required packages using command `npm install`
+- Run command `npm run dev` to start the server
