@@ -1,17 +1,20 @@
 const express = require('express');
 
 const { Show } = require('../models');
-const { schemaValidate } = require('../middlewares');
+const { schemaValidate, auth } = require('../middlewares');
 const { showValidators } = require('../validationSchemas');
 
 const router = express.Router();
 
-router.get('/', async (req, res) => {
+router.get('/', auth, async (req, res) => {
   try {
-    let { search, perPage = 2, page = 1 } = req.query;
+    let { search, perPage = 2, page = 1, sortBy, sortOrder } = req.query;
     if (page === '') {
       page = 1;
     }
+
+    // Ascending - asc
+    // Descending - desc
 
     const shows = await Show.find(
       {
@@ -24,6 +27,10 @@ router.get('/', async (req, res) => {
       {
         limit: Number(perPage),
         skip: (Number(page) - 1) * Number(perPage),
+        sort: {
+          // [sortBy]: sortOrder === 'asc' ? 1 : -1,
+          [sortBy]: Number(sortOrder),
+        },
       }
     );
 

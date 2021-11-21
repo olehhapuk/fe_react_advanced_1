@@ -12,10 +12,12 @@ const Show = new Schema(
     imageUrl: {
       type: String,
       required: false,
+      default: '',
     },
     siteUrl: {
       type: String,
       required: false,
+      default: '',
     },
     season: {
       type: Number,
