@@ -12,6 +12,10 @@ const User = new Schema(
       type: String,
       required: true,
     },
+    parentPost: {
+      type: Schema.Types.ObjectId,
+      ref: 'post',
+    },
   },
   { timestamps: true }
 );
