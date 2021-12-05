@@ -7,7 +7,7 @@ require('dotenv').config();
 const passport = require('passport');
 const { Strategy, ExtractJwt } = require('passport-jwt');
 
-const { shows, auth } = require('./routes');
+const { auth, posts } = require('./routes');
 const { User } = require('./models');
 
 const app = express();
@@ -47,7 +47,7 @@ app.get('/', (req, res) => {
   res.json({ message: 'Hello, World!' });
 });
 
-app.use('/api/shows', shows);
 app.use('/api/auth', auth);
+app.use('/api/posts', posts);
 
 module.exports = app;

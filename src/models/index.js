@@ -1,4 +1,5 @@
 module.exports = {
-  Show: require('./Show'),
   User: require('./User'),
+  Post: require('./Post'),
+  Tag: require('./Tag'),
 };
