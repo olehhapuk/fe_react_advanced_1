@@ -7,9 +7,11 @@ const mongoose = require('mongoose');
 const session = require('express-session');
 const passport = require('passport');
 const LocalStrategy = require('passport-local').Strategy;
+const flash = require('connect-flash');
 
 const authRouter = require('./routes/auth');
 const User = require('./models/User');
+const isAuthenticated = require('./middlewares/isAuthenticated');
 
 const app = express();
 
@@ -40,12 +42,15 @@ app.use(
     saveUninitialized: false,
     cookie: {
       httpOnly: true,
-      maxAge: 2592000,
+      maxAge: 2592000000,
       path: '/',
     },
   })
 );
-app.use(express.json());
+app.use(express.urlencoded({ extended: false }));
+app.use(flash());
+
+app.set('view engine', 'ejs');
 
 passport.serializeUser((user, done) => {
   done(null, user.id);
@@ -86,6 +91,28 @@ passport.use(
 app.use(passport.initialize());
 app.use(passport.session());
 
-app.use('/api/auth', authRouter);
+app.get('/', (req, res) => {
+  res.render('index');
+});
+
+app.get('/login', (req, res) => {
+  res.render('login', {
+    message: req.flash('message'),
+  });
+});
+
+app.get('/register', (req, res) => {
+  res.render('register', {
+    message: req.flash('message'),
+  });
+});
+
+app.get('/profile', isAuthenticated, (req, res) => {
+  res.render('profile', {
+    username: req.user.username,
+  });
+});
+
+app.use('/auth', authRouter);
 
 module.exports = app;

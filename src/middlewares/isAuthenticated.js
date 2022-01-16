@@ -4,9 +4,10 @@ module.exports = (req, res, next) => {
     return;
   }
 
-  res.status(401).json({
-    message: 'Unauthorized',
-  });
+  // res.status(401).json({
+  //   message: 'Unauthorized',
+  // });
+  res.redirect('/login');
 };
 
 // request -> isAuthenticated ? -> handler : -> return;

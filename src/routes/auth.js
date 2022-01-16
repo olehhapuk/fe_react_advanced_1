@@ -13,9 +13,11 @@ function loginUser(req, res, next) {
 
   passport.authenticate('local', (error, user) => {
     if (!user) {
-      res.status(400).json({
-        message: 'Wrong credentials',
-      });
+      // res.status(400).json({
+      //   message: 'Wrong credentials',
+      // });
+      req.flash('message', 'Wrong credentials');
+      res.redirect('/login');
       return;
     }
 
@@ -32,7 +34,8 @@ function loginUser(req, res, next) {
         return;
       }
 
-      res.json(user);
+      // res.json(user);
+      res.redirect('/profile');
     });
   })(req, res, next);
 }
@@ -43,7 +46,9 @@ router.post('/register', async (req, res, next) => {
   try {
     const existingUser = await User.findOne({ username: req.body.username });
     if (existingUser) {
-      res.status(400).json({ message: 'Username is already taken' });
+      // res.status(400).json({ message: 'Username is already taken' });
+      req.flash('message', 'Username is already taken');
+      res.redirect('/register');
       return;
     }
 
@@ -61,15 +66,16 @@ router.post('/register', async (req, res, next) => {
   }
 });
 
-router.get('/profile', isAuthenticated, (req, res) => {
-  res.json(req.user);
-});
+// router.get('/profile', isAuthenticated, (req, res) => {
+//   res.json(req.user);
+// });
 
-router.post('/logout', isAuthenticated, (req, res) => {
+router.get('/logout', isAuthenticated, (req, res) => {
   req.logout();
-  res.json({
-    message: 'Logged out',
-  });
+  res.redirect('/');
+  // res.json({
+  //   message: 'Logged out',
+  // });
 });
 
 module.exports = router;
