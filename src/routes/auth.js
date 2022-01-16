@@ -2,11 +2,12 @@ const express = require('express');
 const passport = require('passport');
 
 const User = require('../models/User');
+const isAuthenticated = require('../middlewares/isAuthenticated');
 
 // const router = require('express').Router();
 const router = express.Router();
 
-router.post('/login', (req, res, next) => {
+function loginUser(req, res, next) {
   // req.session.passport.user = userId
   // req.user = user data
 
@@ -34,9 +35,11 @@ router.post('/login', (req, res, next) => {
       res.json(user);
     });
   })(req, res, next);
-});
+}
 
-router.post('/register', async (req, res) => {
+router.post('/login', loginUser);
+
+router.post('/register', async (req, res, next) => {
   try {
     const existingUser = await User.findOne({ username: req.body.username });
     if (existingUser) {
@@ -51,11 +54,22 @@ router.post('/register', async (req, res) => {
     // Save new user with hashed password to database
     await newUser.save();
 
-    res.json(newUser);
+    loginUser(req, res, next);
   } catch (error) {
     console.log(error);
     res.status(500).send(error);
   }
+});
+
+router.get('/profile', isAuthenticated, (req, res) => {
+  res.json(req.user);
+});
+
+router.post('/logout', isAuthenticated, (req, res) => {
+  req.logout();
+  res.json({
+    message: 'Logged out',
+  });
 });
 
 module.exports = router;
