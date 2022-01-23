@@ -7,7 +7,7 @@ require('dotenv').config();
 const passport = require('passport');
 const { Strategy, ExtractJwt } = require('passport-jwt');
 
-const { shows, auth } = require('./routes');
+const { auth } = require('./routes');
 const { User } = require('./models');
 
 const app = express();
@@ -21,15 +21,17 @@ app.use(express.json());
 app.use(volleyball);
 app.use(helmet());
 app.use(cors({ origin: '*' }));
+
+// Напишіть стратегію jwt авторизації
 passport.use(
   new Strategy(
     {
-      secretOrKey: process.env.JWT_SECRET,
       jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
+      secretOrKey: process.env.JWT_SECRET,
     },
     async (payload, done) => {
       try {
-        const user = await User.findById(payload._id);
+        const user = await User.findById(payload.id);
         if (!user) {
           done(new Error('User not found'));
           return;
@@ -47,7 +49,6 @@ app.get('/', (req, res) => {
   res.json({ message: 'Hello, World!' });
 });
 
-app.use('/api/shows', shows);
 app.use('/api/auth', auth);
 
 module.exports = app;

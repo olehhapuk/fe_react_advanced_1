@@ -1,9 +1,9 @@
 {
-  "name": "film-stopwatch",
+  "name": "auth-test",
   "main": "index.js",
   "scripts": {
     "start": "node index.js",
-    "dev": "nodemon"
+    "dev": "nodemon index.js"
   },
   "dependencies": {
     "bcryptjs": "^2.4.3",
