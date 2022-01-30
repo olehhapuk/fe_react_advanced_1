@@ -11,9 +11,10 @@ const User = new Schema(
       type: String,
       required: true,
     },
+    avatarUrl: String,
   },
   {
-    timestamps: true
+    timestamps: true,
   }
 );
 

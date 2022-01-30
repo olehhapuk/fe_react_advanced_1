@@ -1,11 +1,39 @@
 const express = require('express');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
+const path = require('path');
+const multer = require('multer');
 
 const { User } = require('../models');
 const { auth } = require('../middlewares');
 
 const router = express.Router();
+
+const imagesDir = path.join(__dirname, '../../public/avatars');
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, imagesDir);
+  },
+  filename: (req, file, cb) => {
+    const newFilename = `${new Date().getTime()}_${file.originalname}`;
+    cb(null, newFilename);
+  },
+});
+
+const acceptedTypes = ['image/png', 'image/jpeg'];
+const upload = multer({
+  storage: storage,
+  limits: {
+    fileSize: 1048576 * 5,
+  },
+  fileFilter: (req, file, cb) => {
+    if (acceptedTypes.includes(file.mimetype)) {
+      cb(null, true);
+    } else {
+      cb(new Error('Filetype is not supported'));
+    }
+  },
+});
 
 router.post('/register', async (req, res) => {
   try {
@@ -40,6 +68,21 @@ router.post('/register', async (req, res) => {
   } catch (error) {
     console.log(error);
     res.status(500).send(error);
+  }
+});
+
+router.patch('/:userId/avatar', upload.single('avatar'), async (req, res) => {
+  try {
+    const updatedUser = await User.findByIdAndUpdate(
+      req.params.userId,
+      {
+        avatarUrl: req.file.filename,
+      },
+      { new: true }
+    );
+    res.json(updatedUser);
+  } catch (error) {
+    next(error);
   }
 });
 
