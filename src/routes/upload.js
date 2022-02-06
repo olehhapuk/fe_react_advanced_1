@@ -1,12 +1,14 @@
 const express = require('express');
-const path = require('path');
 const multer = require('multer');
+const path = require('path');
+const fs = require('fs').promises;
 
-const router = express.Router();
-const imagesDir = path.join(__dirname, '../../images');
+const uploadsDir = path.join(__dirname, '../uploads');
+const avatarsDir = path.join(__dirname, '../../public/avatars');
+
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
-    cb(null, imagesDir);
+    cb(null, uploadsDir);
   },
   filename: (req, file, cb) => {
     const newFilename = `${new Date().getTime()}_${file.originalname}`;
@@ -14,24 +16,26 @@ const storage = multer.diskStorage({
   },
 });
 
-const acceptedTypes = ['image/png', 'image/jpeg'];
 const upload = multer({
-  storage: storage,
-  limits: {
-    fileSize: 1048576 * 5,
-  },
-  fileFilter: (req, file, cb) => {
-    if (acceptedTypes.includes(file.mimetype)) {
-      cb(null, true);
-    } else {
-      cb(new Error('Filetype is not supported'));
-    }
-  },
+  storage,
 });
 
-router.post('/', upload.single('avatar'), (req, res) => {
-  console.log(req.file);
-  res.json(req.file.path);
+const router = express.Router();
+
+/*
+{
+  avatar: string;
+}
+*/
+router.post('/avatar', upload.single('avatar'), async (req, res) => {
+  try {
+    const newFilepath = path.join(avatarsDir, req.file.filename);
+    await fs.rename(req.file.path, newFilepath);
+    res.json(req.file.filename); // Avatar filename
+  } catch (error) {
+    console.log(error);
+    res.status(500).send(error);
+  }
 });
 
 module.exports = router;

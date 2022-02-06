@@ -2,38 +2,17 @@ const express = require('express');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const path = require('path');
-const multer = require('multer');
+const jimp = require('jimp');
+const fs = require('fs').promises;
+const gravatar = require('gravatar');
 
 const { User } = require('../models');
 const { auth } = require('../middlewares');
+const avatarUpload = require('../utils/uploadConfigs/avatarUpload');
 
 const router = express.Router();
 
-const imagesDir = path.join(__dirname, '../../public/avatars');
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    cb(null, imagesDir);
-  },
-  filename: (req, file, cb) => {
-    const newFilename = `${new Date().getTime()}_${file.originalname}`;
-    cb(null, newFilename);
-  },
-});
-
-const acceptedTypes = ['image/png', 'image/jpeg'];
-const upload = multer({
-  storage: storage,
-  limits: {
-    fileSize: 1048576 * 5,
-  },
-  fileFilter: (req, file, cb) => {
-    if (acceptedTypes.includes(file.mimetype)) {
-      cb(null, true);
-    } else {
-      cb(new Error('Filetype is not supported'));
-    }
-  },
-});
+const imagesDir = path.join(process.cwd(), './public/avatars');
 
 router.post('/register', async (req, res) => {
   try {
@@ -49,6 +28,7 @@ router.post('/register', async (req, res) => {
     const newUser = await User.create({
       ...req.body,
       password: await bcrypt.hash(req.body.password, 12),
+      avatarUrl: gravatar.url(req.body.username, { size: 250 }),
     });
 
     // 2. Підготуйте payload для генерації jwt токена
@@ -71,8 +51,14 @@ router.post('/register', async (req, res) => {
   }
 });
 
-router.patch('/:userId/avatar', upload.single('avatar'), async (req, res) => {
+router.patch('/:userId/avatar', avatarUpload, async (req, res, next) => {
   try {
+    const avatar = await jimp.read(req.file.path);
+    await avatar.cover(250, 250).writeAsync(req.file.path);
+
+    const newPath = path.join(imagesDir, req.file.filename);
+    await fs.rename(req.file.path, newPath);
+
     const updatedUser = await User.findByIdAndUpdate(
       req.params.userId,
       {
