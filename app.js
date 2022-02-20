@@ -3,9 +3,12 @@ const logger = require('morgan');
 const cors = require('cors');
 const mongoose = require('mongoose');
 require('dotenv').config();
+const passport = require('passport');
+const { Strategy, ExtractJwt } = require('passport-jwt');
 
 const contactsRouter = require('./routes/api/contacts');
 const usersRouter = require('./routes/api/users');
+const User = require('./models/usersSchema');
 
 mongoose.connect(process.env.MONGODB_URI, { useNewUrlParser: true });
 
@@ -22,6 +25,28 @@ const formatsLogger = app.get('env') === 'development' ? 'dev' : 'short';
 app.use(logger(formatsLogger));
 app.use(cors());
 app.use(express.json());
+
+passport.use(
+  new Strategy(
+    {
+      jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
+      secretOrKey: process.env.JWT_SECRET,
+    },
+    async (payload, done) => {
+      try {
+        const user = await User.findById(payload._id);
+        if (!user) {
+          done(new Error('User not found'));
+          return;
+        }
+
+        done(null, user);
+      } catch (error) {
+        done(error);
+      }
+    }
+  )
+);
 
 // Routes
 app.use('/api/contacts', contactsRouter);

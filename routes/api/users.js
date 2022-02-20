@@ -5,6 +5,7 @@ const jwt = require('jsonwebtoken');
 const schemaValidate = require('../../middlewares/schemaValidate');
 const User = require('../../models/usersSchema');
 const validationSchemas = require('../../validationSchemas/users');
+const auth = require('../../middlewares/auth');
 
 const router = express.Router();
 
@@ -75,8 +76,12 @@ router.post(
   }
 );
 
-router.get('/current', async (req, res, next) => {
+router.get('/current', auth, async (req, res, next) => {
   try {
+    res.json({
+      email: req.user.email,
+      subscription: req.user.subscription,
+    });
   } catch (error) {
     next(error);
   }
