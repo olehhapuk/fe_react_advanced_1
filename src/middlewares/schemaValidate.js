@@ -4,6 +4,6 @@ module.exports = (schema) => async (req, res, next) => {
     next();
   } catch (error) {
     console.log(error);
-    res.status(400).json(error);
+    res.status(422).json(error);
   }
 };
