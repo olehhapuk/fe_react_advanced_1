@@ -1,27 +1,5 @@
-// import data from './hello.js';
-// const data = require('./hello.js');
+const app = require('./src/app');
 
-const fs = require('fs').promises;
-
-// fs.readFile('hello.txt').then((data) => {
-//   console.log(data.toString());
-// });
-
-// fs.readFile('data.json').then((data) => {
-//   console.log(JSON.parse(data));
-// });
-
-fs.readdir(__dirname)
-  .then((files) => {
-    return Promise.all(
-      files.map(async (filename) => {
-        const stats = await fs.stat(filename);
-        return {
-          name: filename,
-          size: stats.size,
-          date: stats.mtime,
-        };
-      })
-    );
-  })
-  .then((result) => console.table(result));
+app.listen(process.env.PORT, () => {
+  console.log(`Started on http://localhost:${process.env.PORT}`);
+});
