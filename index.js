@@ -1,23 +1,30 @@
 const express = require('express');
-require('dotenv').config();
-const cors = require('cors');
-const { PrismaClient } = require('@prisma/client');
+const mongoose = require('mongoose');
 
-const prisma = new PrismaClient();
 const app = express();
 
 app.use(express.json());
-app.use(cors());
+
+const userSchema = new mongoose.Schema({
+  username: String,
+  password: String,
+});
+
+const User = mongoose.model('user', userSchema);
+
+app.get('/', async (req, res) => {
+  try {
+    const users = await User.find();
+    res.json(users);
+  } catch (error) {
+    console.log(error);
+    res.status(500).send(error.message);
+  }
+});
 
 app.post('/', async (req, res) => {
   try {
-    const newUser = await prisma.user.create({
-      data: {
-        password: 'pass',
-        username: 'user',
-      },
-    });
-
+    const newUser = await User.create(req.body);
     res.json(newUser);
   } catch (error) {
     console.log(error);
@@ -25,6 +32,8 @@ app.post('/', async (req, res) => {
   }
 });
 
-app.listen(process.env.PORT, () => {
-  console.log(`Started on http://localhost:${process.env.PORT}`);
+mongoose.connect('mongodb://root:example@db:27017').then(() => {
+  app.listen(5000, () => {
+    console.log('Started on 5000');
+  });
 });
