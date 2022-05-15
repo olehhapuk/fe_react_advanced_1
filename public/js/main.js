@@ -8,6 +8,8 @@ const messagesListRef = document.querySelector('.messages-list');
 
 const messageTypingRef = document.querySelector('#typingText');
 
+let selectedUserId = null;
+
 registerFormRef.addEventListener('submit', (e) => {
   e.preventDefault();
 
@@ -20,6 +22,7 @@ function createUserHTML(user) {
   return `<button
             class="list-group-item list-group-item-action"
             data-userid="${user.id}"
+            onclick="selectUser('${user.id}')"
           >
             ${user.username}
           </button>`;
@@ -42,6 +45,10 @@ function createMessageHTML(message, socket) {
           </li>`;
 }
 
+function selectUser(userId) {
+  selectedUserId = userId;
+}
+
 function connect(username) {
   const socket = io({
     auth: {
@@ -53,7 +60,7 @@ function connect(username) {
     e.preventDefault();
 
     const newMessageText = messageInputRef.value;
-    socket.emit('message create', newMessageText, (status) => {
+    socket.emit('message create', newMessageText, selectedUserId, (status) => {
       console.log(status);
       if (status === 'OK') {
         messageInputRef.value = '';

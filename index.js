@@ -5,6 +5,8 @@ const http = require('http');
 const { Server } = require('socket.io');
 const { nanoid } = require('nanoid');
 
+const createMessageHandlers = require('./handlers/messageHandlers');
+
 const app = express();
 const server = http.createServer(app);
 const io = new Server(server);
@@ -29,11 +31,12 @@ function findUserById(userId) {
   return users.find((user) => user.id === userId);
 }
 
-function createMessage(socket, text) {
+function createMessage(socket, text, targetUserId) {
   return {
     id: nanoid(),
     text,
     from: findUserById(socket.id),
+    // to: findUserById(targetUserId)
   };
 }
 
@@ -47,32 +50,33 @@ function insertMessage(message) {
 
 // ./Repository
 
-io.on('connection', (socket) => {
-  socket.on('disconnect', () => {
-    users = users.filter((userId) => socket.id !== userId);
-    io.emit('user disconnected', { userId: socket.id, users });
-  });
-
-  console.log(socket.id, socket.handshake.auth);
-
+function init(io, socket) {
   const newUser = createUser(socket, socket.handshake.auth.username);
   insertUser(newUser);
 
   socket.broadcast.emit('user connected', newUser);
   io.to(socket.id).emit('users list', users);
   io.to(socket.id).emit('messages list', messages);
+}
 
-  socket.on('message create', (text, callback) => {
-    const newMessage = createMessage(socket, text);
-    insertMessage(newMessage);
-    callback('OK');
-
-    io.emit('message create', newMessage);
+io.on('connection', (socket) => {
+  socket.on('disconnect', () => {
+    users = users.filter((userId) => socket.id !== userId);
+    io.emit('user disconnected', { userId: socket.id, users });
   });
 
-  socket.on('message typing', () => {
-    io.emit('message typing', findUserById(socket.id));
-  });
+  init(io, socket);
+
+  const messageHandlers = createMessageHandlers(
+    io,
+    socket,
+    createMessage,
+    insertMessage,
+    findUserById
+  );
+
+  socket.on('message create', messageHandlers.handleMessageCreate);
+  socket.on('message typing', messageHandlers.handleMessageTyping);
 });
 
 server.listen(process.env.PORT, () => {
