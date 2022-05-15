@@ -19,6 +19,7 @@
   },
   "homepage": "https://github.com/olehhapuk/fe_react_advanced_1#readme",
   "dependencies": {
+    "@prisma/client": "^3.14.0",
     "bcrypt": "^5.0.1",
     "cors": "^2.8.5",
     "dotenv": "^16.0.0",
@@ -32,6 +33,7 @@
     "socket.io": "^4.5.0"
   },
   "devDependencies": {
-    "nodemon": "^2.0.16"
+    "nodemon": "^2.0.16",
+    "prisma": "^3.14.0"
   }
 }
